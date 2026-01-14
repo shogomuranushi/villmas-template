@@ -1,0 +1,31 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back!"
+  },
+  "billing": {
+    "title": "Billing",
+    "currentPlan": "Current Plan",
+    "upgrade": "Upgrade",
+    "manageSubscription": "Manage Subscription"
+  }
+}

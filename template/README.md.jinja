@@ -1,0 +1,171 @@
+# {{ project_name }}
+
+{{ project_description }}
+
+## Tech Stack
+
+### Frontend (apps/spa)
+- **Framework**: React 18 + Vite
+- **State Management**: Zustand + TanStack Query
+- **UI**: Radix UI + Tailwind CSS
+- **Auth**: Clerk
+{% if include_i18n %}- **i18n**: i18next{% endif %}
+
+### Backend (apps/api)
+{% if backend_type == 'hono' %}- **Runtime**: Cloudflare Workers
+- **Framework**: Hono
+- **Database**: Durable Objects (SQLite per organization)
+{% else %}- **Runtime**: Cloudflare Workers (Python)
+- **Framework**: FastAPI
+{% endif %}- **Billing**: Stripe
+
+### Infrastructure
+- **Monorepo**: Turborepo + pnpm
+- **CI/CD**: GitHub Actions
+- **Deploy**: Wrangler (Cloudflare CLI)
+
+## Project Structure
+
+```
+{{ project_slug }}/
+├── apps/
+{% if backend_type == 'hono' %}│   ├── api/              # Backend API (Hono + Workers)
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   ├── routes/
+│   │   │   ├── durable-objects/
+│   │   │   └── middleware/
+│   │   └── wrangler.toml
+{% else %}│   ├── api-python/       # Backend API (FastAPI + Workers)
+│   │   ├── src/
+│   │   │   ├── main.py
+│   │   │   └── routes/
+│   │   └── wrangler.toml
+{% endif %}│   └── spa/              # Frontend SPA (Vite + React)
+│       ├── src/
+│       └── index.html
+│
+├── package.json
+├── turbo.json
+└── pnpm-workspace.yaml
+```
+
+## Prerequisites
+
+- Node.js >= 20.0.0
+- pnpm >= 9.0.0
+- Cloudflare account
+- Wrangler CLI (`npm install -g wrangler`)
+
+## Setup
+
+### 1. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 2. Configure Wrangler
+
+```bash
+wrangler login
+```
+
+### 3. Set environment variables
+
+Copy `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+```
+
+Required variables:
+- `VITE_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `VITE_STRIPE_PRICING_TABLE_ID` - Stripe pricing table ID
+
+### 4. Set Cloudflare secrets
+
+```bash
+cd apps/api
+wrangler secret put CLERK_SECRET_KEY
+wrangler secret put STRIPE_SECRET_KEY
+```
+
+## Development
+
+### Start all services
+
+```bash
+pnpm dev
+```
+
+### Start individual services
+
+```bash
+# API only
+pnpm dev:api
+
+# SPA only
+pnpm dev:spa
+```
+
+## Deploy
+
+### Development environment
+
+```bash
+pnpm deploy:dev
+```
+
+### Production environment
+
+```bash
+pnpm deploy:prod
+```
+
+{% if dev_domain or production_domain %}
+## Custom Domains
+
+| Environment | Domain |
+|-------------|--------|
+{% if dev_domain %}| Development | {{ dev_domain }} |{% endif %}
+{% if production_domain %}| Production | {{ production_domain }} |{% endif %}
+
+Custom domains are configured in `wrangler.toml`. Make sure your domains are added to your Cloudflare account.
+{% endif %}
+
+## Features
+
+### Authentication (Clerk)
+- Email/Password sign up
+- Social login (Google, GitHub, etc.)
+- Organization support (multi-tenant)
+- Role-based access control
+
+### Billing (Stripe)
+- Pricing table integration
+- Customer portal
+- Subscription management
+- Usage tracking
+
+### Per-Organization Storage (Durable Objects)
+- Each organization gets isolated SQLite storage
+- Automatic scaling
+- Low latency data access
+
+## Adding New Features
+
+### Add a new API route
+
+1. Create route file in `apps/api/src/routes/`
+2. Register in `apps/api/src/index.ts`
+
+### Add a new page
+
+1. Create page component in `apps/spa/src/features/`
+2. Add route in `apps/spa/src/App.tsx`
+
+## License
+
+MIT

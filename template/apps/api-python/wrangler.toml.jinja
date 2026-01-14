@@ -1,0 +1,54 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "{{ project_slug }}-api-dev"
+main = "src/main.py"
+compatibility_date = "2025-01-08"
+compatibility_flags = ["python_workers"]
+
+# ============================================
+# Static Assets (SPA)
+# ============================================
+[assets]
+directory = "../spa/dist"
+binding = "ASSETS"
+
+# ============================================
+# Custom Domain (Development)
+# ============================================
+{% if dev_domain %}
+routes = [
+  { pattern = "{{ dev_domain }}", custom_domain = true }
+]
+{% endif %}
+
+# ============================================
+# Environment Variables (Dev)
+# ============================================
+[vars]
+APP_URL = "{% if dev_domain %}https://{{ dev_domain }}{% else %}http://localhost:5173{% endif %}"
+{% if clerk_issuer_url %}CLERK_ISSUER_URL = "{{ clerk_issuer_url }}"{% endif %}
+
+# ============================================
+# Environment: Production
+# ============================================
+[env.production]
+name = "{{ project_slug }}-api-prod"
+
+[env.production.assets]
+directory = "../spa/dist"
+binding = "ASSETS"
+
+{% if production_domain %}
+routes = [
+  { pattern = "{{ production_domain }}", custom_domain = true }
+]
+{% endif %}
+
+[env.production.vars]
+APP_URL = "{% if production_domain %}https://{{ production_domain }}{% else %}https://{{ project_slug }}-api-prod.workers.dev{% endif %}"
+{% if clerk_issuer_url %}CLERK_ISSUER_URL = "{{ clerk_issuer_url }}"{% endif %}
+
+# ============================================
+# Secrets (set via wrangler secret put)
+# ============================================
+# - CLERK_SECRET_KEY
+# - STRIPE_SECRET_KEY

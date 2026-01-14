@@ -1,0 +1,63 @@
+/**
+ * Dashboard Page
+ */
+import { useOrganization, useUser } from '@clerk/clerk-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+export function DashboardPage() {
+  const { user } = useUser();
+  const { organization } = useOrganization();
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome back, {user?.firstName || 'User'}!
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+            <CardDescription>
+              {organization ? organization.name : 'Personal Account'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">
+              {organization ? 'Organization' : 'Personal'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Getting Started</CardTitle>
+            <CardDescription>Start building your SaaS</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+              <li>Customize this dashboard</li>
+              <li>Add your features</li>
+              <li>Configure billing</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{{ project_name }}</CardTitle>
+            <CardDescription>{{ project_description }}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Built with Cloudflare Workers, Hono, React, and Clerk.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

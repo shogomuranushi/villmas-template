@@ -1,0 +1,106 @@
+/**
+ * {{ project_name }} - Main App Component
+ */
+import { ClerkProvider } from '@clerk/clerk-react';
+import { jaJP } from '@clerk/localizations';
+import { dark } from '@clerk/themes';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+{% if include_i18n %}import { useTranslation } from 'react-i18next';
+import './lib/i18n';
+{% endif %}
+// Auth Pages
+import { SignInPage } from './features/auth/pages/SignInPage';
+import { SignUpPage } from './features/auth/pages/SignUpPage';
+import { OrganizationSelectionPage } from './features/auth/pages/OrganizationSelectionPage';
+
+// Dashboard Pages
+import { DashboardPage } from './features/dashboard/pages/DashboardPage';
+import { UserProfilePage } from './features/dashboard/pages/UserProfilePage';
+import { OrganizationProfilePage } from './features/dashboard/pages/OrganizationProfilePage';
+
+// Billing
+import { BillingPage } from './features/billing/components/BillingPage';
+
+// Auth Guards
+import { AuthGuard } from './components/auth/AuthGuard';
+import { OrgGuard } from './components/auth/OrgGuard';
+
+// Layouts
+import { AuthLayout } from './components/layout/AuthLayout';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+  throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY');
+}
+
+function App() {
+  {% if include_i18n %}const { i18n } = useTranslation();
+  const isJapanese = i18n.language === 'ja';{% endif %}
+
+  return (
+    <ClerkProvider
+      publishableKey={CLERK_PUBLISHABLE_KEY}
+      {% if include_i18n %}localization={isJapanese ? jaJP : undefined}{% endif %}
+      appearance={% raw %}{{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: '#3b82f6',
+        },
+      }}{% endraw %}
+    >
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Auth Routes */}
+            <Route path="/sign-in/*" element={<SignInPage />} />
+            <Route path="/sign-up/*" element={<SignUpPage />} />
+            <Route
+              path="/select-organization"
+              element={
+                <AuthGuard>
+                  <OrganizationSelectionPage />
+                </AuthGuard>
+              }
+            />
+
+            {/* Protected Dashboard Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <AuthGuard>
+                  <OrgGuard>
+                    <AuthLayout />
+                  </OrgGuard>
+                </AuthGuard>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="settings/billing" element={<BillingPage />} />
+              <Route path="user-profile/*" element={<UserProfilePage />} />
+              <Route path="organization-profile/*" element={<OrganizationProfilePage />} />
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ClerkProvider>
+  );
+}
+
+export default App;

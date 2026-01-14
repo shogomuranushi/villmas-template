@@ -1,0 +1,117 @@
+# Villmas Template - Cloudflare SaaS Starter
+# https://copier.readthedocs.io/
+
+_min_copier_version: "9.0.0"
+
+_subdirectory: template
+
+_templates_suffix: .jinja
+
+_exclude:
+  - copier.yaml
+  - "*.pyc"
+  - __pycache__
+  - .git
+  - node_modules
+  - .turbo
+  - dist
+  # Exclude api-python if hono is selected
+  - "{% if backend_type == 'hono' %}apps/api-python{% endif %}"
+  # Exclude api (hono) if fastapi is selected
+  - "{% if backend_type == 'fastapi' %}apps/api{% endif %}"
+
+# ==============================================
+# Project Information
+# ==============================================
+project_name:
+  type: str
+  help: "Project name (e.g., My Awesome App)"
+  validator: "{% if not project_name %}Project name is required{% endif %}"
+
+project_slug:
+  type: str
+  help: "Project slug for URLs and package names"
+  default: "{{ project_name | lower | replace(' ', '-') | replace('_', '-') }}"
+
+project_description:
+  type: str
+  help: "Short project description"
+  default: "A modern SaaS application built with Cloudflare"
+
+author_name:
+  type: str
+  help: "Author name"
+  default: ""
+
+# ==============================================
+# Domain Configuration
+# ==============================================
+dev_domain:
+  type: str
+  help: "Development domain (e.g., dev.myapp.com). Leave empty to use workers.dev"
+  default: ""
+
+production_domain:
+  type: str
+  help: "Production domain (e.g., myapp.com). Leave empty to use workers.dev"
+  default: ""
+
+# ==============================================
+# Backend Selection
+# ==============================================
+backend_type:
+  type: str
+  help: "Backend framework"
+  choices:
+    hono: "Hono (TypeScript) - Recommended for Cloudflare Workers"
+    fastapi: "FastAPI (Python) - For Python developers"
+  default: "hono"
+
+# ==============================================
+# Clerk Authentication
+# ==============================================
+clerk_publishable_key:
+  type: str
+  help: "Clerk Publishable Key (pk_test_... or pk_live_...)"
+  default: ""
+  secret: true
+
+clerk_issuer_url:
+  type: str
+  help: "Clerk Issuer URL (e.g., https://your-app.clerk.accounts.dev)"
+  default: ""
+
+# ==============================================
+# Stripe Billing
+# ==============================================
+stripe_pricing_table_id:
+  type: str
+  help: "Stripe Pricing Table ID (prctbl_...)"
+  default: ""
+
+stripe_publishable_key:
+  type: str
+  help: "Stripe Publishable Key (pk_test_... or pk_live_...)"
+  default: ""
+  secret: true
+
+# ==============================================
+# Cloudflare Configuration
+# ==============================================
+cloudflare_account_id:
+  type: str
+  help: "Cloudflare Account ID (for container registry)"
+  default: ""
+
+# ==============================================
+# Optional Features
+# ==============================================
+include_i18n:
+  type: bool
+  help: "Include internationalization (i18next)?"
+  default: true
+
+include_posthog:
+  type: bool
+  help: "Include PostHog analytics?"
+  default: false

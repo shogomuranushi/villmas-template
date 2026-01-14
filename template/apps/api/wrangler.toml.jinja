@@ -1,0 +1,97 @@
+name = "{{ project_slug }}-api-dev"
+main = "src/index.ts"
+compatibility_date = "2025-01-08"
+compatibility_flags = ["nodejs_compat"]
+
+# ============================================
+# Observability (Workers Tracing)
+# ============================================
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+
+# Local development settings
+[dev]
+port = 8787
+
+# ============================================
+# Static Assets (SPA)
+# ============================================
+[assets]
+directory = "../spa/dist"
+binding = "ASSETS"
+
+# ============================================
+# Durable Objects (Organization Storage)
+# ============================================
+[durable_objects]
+bindings = [
+  { name = "ORGANIZATION_STORAGE", class_name = "OrganizationStorage" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["OrganizationStorage"]
+
+# ============================================
+# Custom Domain (Development)
+# ============================================
+{% if dev_domain %}
+routes = [
+  { pattern = "{{ dev_domain }}", custom_domain = true }
+]
+{% endif %}
+
+# ============================================
+# Environment Variables (Dev)
+# ============================================
+[vars]
+APP_URL = "{% if dev_domain %}https://{{ dev_domain }}{% else %}http://localhost:5173{% endif %}"
+{% if clerk_issuer_url %}CLERK_ISSUER_URL = "{{ clerk_issuer_url }}"{% endif %}
+{% if stripe_pricing_table_id %}STRIPE_PRICING_TABLE_ID = "{{ stripe_pricing_table_id }}"{% endif %}
+
+# ============================================
+# Environment: Production
+# ============================================
+[env.production]
+name = "{{ project_slug }}-api-prod"
+
+# Observability (Production)
+[env.production.observability]
+enabled = true
+
+[env.production.observability.traces]
+enabled = true
+head_sampling_rate = 0.1
+
+# Static Assets (Production)
+[env.production.assets]
+directory = "../spa/dist"
+binding = "ASSETS"
+
+# Durable Objects (Production)
+[env.production.durable_objects]
+bindings = [
+  { name = "ORGANIZATION_STORAGE", class_name = "OrganizationStorage" }
+]
+
+# Custom Domain (Production)
+{% if production_domain %}
+routes = [
+  { pattern = "{{ production_domain }}", custom_domain = true }
+]
+{% endif %}
+
+[env.production.vars]
+APP_URL = "{% if production_domain %}https://{{ production_domain }}{% else %}https://{{ project_slug }}-api-prod.workers.dev{% endif %}"
+{% if clerk_issuer_url %}CLERK_ISSUER_URL = "{{ clerk_issuer_url }}"{% endif %}
+{% if stripe_pricing_table_id %}STRIPE_PRICING_TABLE_ID = "{{ stripe_pricing_table_id }}"{% endif %}
+
+# ============================================
+# Secrets (set via wrangler secret put)
+# ============================================
+# - CLERK_SECRET_KEY
+# - STRIPE_SECRET_KEY
