@@ -63,8 +63,8 @@ backend_type:
   type: str
   help: "Backend framework"
   choices:
-    hono: "Hono (TypeScript) - Recommended for Cloudflare Workers"
-    fastapi: "FastAPI (Python) - For Python developers"
+    - hono
+    - fastapi
   default: "hono"
 
 # ==============================================
