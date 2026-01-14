@@ -52,26 +52,37 @@
 
 ## Prerequisites
 
-- Node.js >= 20.0.0
-- pnpm >= 9.0.0
-- Cloudflare account
-- Wrangler CLI (`npm install -g wrangler`)
+- [mise](https://mise.jdx.dev/) - Runtime version manager
+{% if backend_type == 'fastapi' %}- [uv](https://docs.astral.sh/uv/) - Python package manager
+{% endif %}- Cloudflare account
 
 ## Setup
 
-### 1. Install dependencies
+### 1. Install runtimes
+
+```bash
+# Install Node.js and pnpm via mise
+mise install
+```
+
+### 2. Install dependencies
 
 ```bash
 pnpm install
+{% if backend_type == 'fastapi' %}
+# Python dependencies
+cd apps/api-python
+uv sync
+{% endif %}
 ```
 
-### 2. Configure Wrangler
+### 3. Configure Wrangler
 
 ```bash
 wrangler login
 ```
 
-### 3. Set environment variables
+### 4. Set environment variables
 
 Copy `.env.example` to `.env` and fill in your values:
 
@@ -84,7 +95,7 @@ Required variables:
 - `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
 - `VITE_STRIPE_PRICING_TABLE_ID` - Stripe pricing table ID
 
-### 4. Set Cloudflare secrets
+### 5. Set Cloudflare secrets
 
 ```bash
 cd apps/api
